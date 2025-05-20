@@ -1,0 +1,90 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    user: postgres
+    restart: on-failure:5
+    environment:
+      POSTGRES_DB_FILE: /run/secrets/postgres_db
+      POSTGRES_USER_FILE: /run/secrets/postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    secrets:
+      - postgres_db
+      - postgres_user
+      - postgres_password
+    networks:
+      - ctf-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:exec,mode=1777
+      - /run/postgresql:mode=1777
+
+  app:
+    build: .
+    container_name: security-ctf
+    user: 1000:1000
+    restart: on-failure:5
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ctfdb
+      SPRING_DATASOURCE_USERNAME_FILE: /run/secrets/postgres_user
+      SPRING_DATASOURCE_PASSWORD_FILE: /run/secrets/postgres_password
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    secrets:
+      - postgres_user
+      - postgres_password
+    networks:
+      - ctf-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:exec,mode=1777
+    volumes:
+      - /tmp/spring-boot-tmp:/tmp/spring-boot-tmp
+
+volumes:
+  postgres-data:
+    driver: local
+
+networks:
+  ctf-network:
+    driver: bridge
+
+secrets:
+  postgres_db:
+    file: ./secrets/postgres_db.txt
+  postgres_user:
+    file: ./secrets/postgres_user.txt
+  postgres_password:
+    file: ./secrets/postgres_password.txt
