@@ -31,6 +31,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**").permitAll()  // Allow access to Swagger UI resources
                         .requestMatchers("/api-docs/**").permitAll()  // Allow access to OpenAPI docs
                         .requestMatchers("/v3/api-docs/**").permitAll()  // Allow access to OpenAPI docs
+                        .requestMatchers("/api/auth/**").permitAll()  // Allow access to JWT auth endpoints
                         .requestMatchers("/api/users/**").authenticated()  // Require authentication for user endpoints
                         .anyRequest().authenticated()
                 )
@@ -40,6 +41,7 @@ public class SecurityConfig {
                 )
                 .logout(LogoutConfigurer::permitAll
                 )
+                .csrf(csrf -> csrf.disable())  // Disable CSRF for API endpoints
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
 
         return http.build();
