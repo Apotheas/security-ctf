@@ -32,6 +32,8 @@ public class SecurityConfig {
                         .requestMatchers("/api-docs/**").permitAll()  // Allow access to OpenAPI docs
                         .requestMatchers("/v3/api-docs/**").permitAll()  // Allow access to OpenAPI docs
                         .requestMatchers("/api/auth/**").permitAll()  // Allow access to JWT auth endpoints
+                        .requestMatchers("/api/shop/**").permitAll()  // Allow access to shop endpoints (vulnerable)
+                        .requestMatchers("/shop.html").permitAll()  // Allow access to shop page
                         .requestMatchers("/api/users/**").authenticated()  // Require authentication for user endpoints
                         .anyRequest().authenticated()
                 )
