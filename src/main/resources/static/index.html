@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTF PACK Solutions - Formation et Sensibilisation à la Sécurité</title>
+    <link rel="stylesheet" href="css/challenge-styles.css">
+</head>
+<body class="homepage">
+    <div class="background-pattern"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>CTF PACK Solutions</h1>
+            <div class="subtitle">Formation et Sensbilisation à la Sécurité</div>
+            <div class="description">
+                Chaque défi représente une faille de sécurité différente basée sur le top 10 OWASP.
+            </div>
+        </div>
+        
+        <div class="challenges-section">
+            <h2 class="section-title">Challenges</h2>
+            
+            <div class="challenges-grid">
+                <div class="challenge-card">
+                    <div class="challenge-number">01</div>
+                    <div class="challenge-header">
+                        <div class="challenge-title">
+                            <span class="challenge-icon">🔓</span>
+                            Broken Access Control
+                        </div>
+                        <div class="challenge-type">BOLA / IDOR</div>
+                    </div>
+                    <div class="challenge-description">
+                        Exploitez les contrôles d'autorisation insuffisants pour accéder aux données sensibles d'autres utilisateurs. 
+                    </div>
+                    <div class="challenge-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Difficulté :</span>
+                            <span>⭐</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type :</span>
+                            <span>Exploitation API</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Cible :</span>
+                            <span>Profils Utilisateurs</span>
+                        </div>
+                    </div>
+                    <button class="challenge-button" onclick="window.location.href='/access-control-challenge.html'">
+                        🚀 Commencer le Défi
+                    </button>
+                </div>
+                
+                <div class="challenge-card">
+                    <div class="challenge-number">02</div>
+                    <div class="challenge-header">
+                        <div class="challenge-title">
+                            <span class="challenge-icon">🔑</span>
+                            JWT Algorithm Confusion
+                        </div>
+                        <div class="challenge-type">Sécurité JWT</div>
+                    </div>
+                    <div class="challenge-description">
+                        Forgez des tokens JWT en exploitant les vulnérabilités de confusion d'algorithme. 
+                    </div>
+                    <div class="challenge-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Difficulté :</span>
+                            <span>⭐</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type :</span>
+                            <span>Manipulation de Token</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Cible :</span>
+                            <span>Accès Administrateur</span>
+                        </div>
+                    </div>
+                    <button class="challenge-button" onclick="window.location.href='/jwt-challenge.html'">
+                        🚀 Commencer le Défi
+                    </button>
+                </div>
+                
+                <div class="challenge-card">
+                    <div class="challenge-number">03</div>
+                    <div class="challenge-header">
+                        <div class="challenge-title">
+                            <span class="challenge-icon">💉</span>
+                            Injection SQL
+                        </div>
+                        <div class="challenge-type">Attaque par Injection</div>
+                    </div>
+                    <div class="challenge-description">
+                        Exploitez les vulnérabilités d'injection SQL pour accéder aux tables cachées et récupérer le flag.
+                    </div>
+                    <div class="challenge-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Difficulté :</span>
+                            <span>⭐⭐</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type :</span>
+                            <span>Exploitation Base de Données</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Cible :</span>
+                            <span>Table cachée</span>
+                        </div>
+                    </div>
+                    <button class="challenge-button" onclick="window.location.href='/injection-challenge.html'">
+                        🚀 Commencer le Défi
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+
+        
+        <div class="footer">
+            <div class="footer-content">
+                
+                <div class="footer-links">
+                    <a href="/swagger-ui.html" class="footer-link">📖 Swagger-ui</a>
+                    <a href="/actuator/health" class="footer-link">🔍 HealthCheck</a>
+                    <a href="https://owasp.org/www-project-top-ten/" class="footer-link" target="_blank">📚 OWASP Top 10</a>
+                </div>
+                
+                <div class="company-info">
+                    <p></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

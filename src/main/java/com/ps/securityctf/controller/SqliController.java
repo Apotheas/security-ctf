@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/shop")
+@RequestMapping("/api/injection")
 public class SqliController {
 
     private final DataSource dataSource;
@@ -32,7 +32,7 @@ public class SqliController {
             return ResponseEntity.badRequest().body(Map.of(
                 "error", "Product name is required",
                 "hint", "Use the 'name' parameter to search for products",
-                "example", "/api/shop/search?name=laptop"
+                "example", "/api/injection/search?name=laptop"
             ));
         }
 
