@@ -99,7 +99,7 @@ public class DataInitializer {
                         "jdoe@example.com",
                         "+33 6 45 13 84 52",
                         "65 Tower Street, New York City",
-                        "Created by userId=42 (admin)"
+                        "Created by userId=?? (admin)"
                 );
                 userRepository.save(regularUser);
             }

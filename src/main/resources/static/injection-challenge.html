@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Défi Injection SQL - CTF PACK Solutions</title>
+    <link rel="stylesheet" href="css/challenge-styles.css">
+</head>
+<body>
+    <div class="background-pattern"></div>
+    
+    <a href="/" class="back-btn">← Retour aux Défis</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🛒 Boutique Électronique</h1>
+            <div class="subtitle">Défi #3 - Injection SQL</div>
+        </div>
+        
+        <div class="instructions">
+            <h3>🎯 Objectif du Défi :</h3>
+            <p>Exploitez les vulnérabilités d'injection SQL pour extraire des données sensibles de la base de données.</p>
+            <ul>
+                <li>Testez différentes recherches pour identifier les points d'injection</li>
+                <li>Analysez les messages d'erreur pour comprendre la structure de la base</li>
+                <li>Utilisez les techniques UNION SELECT pour accéder aux tables cachées</li>
+                <li>Récupérez le flag stocké dans la table des secrets</li>
+            </ul>
+        </div>
+
+        <div class="search-container">
+            <h2>🔍 Recherche de Produits</h2>
+            
+            <div class="examples">
+                <h4>Exemples de recherche :</h4>
+                <div class="example-buttons">
+                    <button class="example-btn" onclick="setSearchValue('Laptop')">Laptop</button>
+                    <button class="example-btn" onclick="setSearchValue('iPhone')">iPhone</button>
+                    <button class="example-btn" onclick="setSearchValue('Book')">Book</button>
+                    <button class="example-btn" onclick="setSearchValue('Nike')">Nike</button>
+                </div>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Entrez le nom du produit à rechercher..." value="">
+                <button onclick="searchProducts()">Rechercher</button>
+            </div>
+            
+            <div id="searchResults" class="results-container"></div>
+        </div>
+    </div>
+
+    <script src="js/injection-challenge.js"></script>
+</body>
+</html> 
