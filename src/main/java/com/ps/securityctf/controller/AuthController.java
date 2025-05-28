@@ -4,7 +4,6 @@ import com.ps.securityctf.model.User;
 import com.ps.securityctf.repository.UserRepository;
 import com.ps.securityctf.security.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
