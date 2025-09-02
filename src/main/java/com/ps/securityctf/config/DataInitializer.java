@@ -227,10 +227,10 @@ public class DataInitializer {
             
             // TOUJOURS insérer les commentaires par défaut
             String[][] sampleComments = {
-                {"Pablo", "Super formateur, j'adore Jonathan.", "2024-01-15 10:30:00"},
-                {"Christophe", "Si je devais choisir un element dans ma boite ca serait pablo !", "2024-01-15 11:45:00"},
-                {"Patrice", "Arrettez de claquer la porte s'il vous plait.", "2024-01-15 14:20:00"},
-                {"Admin", "Les cookie c'est la vie😉", "2024-01-15 09:00:00"}
+                {"Pablo", "Qui veut une biere ? 🍻 🍻 🍻", "2024-01-15 10:30:00"},
+                {"F.Izard", "Pensez à mettre à jour Chocolatey sur vos mac !", "2024-01-15 11:45:00"},
+                {"F.perez", "Cette interface pue la merde ! bla bla bla bla bla bla... ", "2024-01-15 14:20:00"},
+                {"Admin", "Les cookies c'est la vie <3", "2024-01-15 09:00:00"}
             };
             
             for (String[] comment : sampleComments) {
