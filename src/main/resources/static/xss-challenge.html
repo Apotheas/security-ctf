@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Défi XSS Stored - CTF PACK Solutions</title>
+    <link rel="stylesheet" href="css/challenge-styles.css">
+</head>
+<body>
+    <div class="background-pattern"></div>
+    
+    <a href="/" class="back-btn">← Retour aux Défis</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1>⚡ XSS Stored</h1>
+            <div class="subtitle">Défi #4 - Cross-Site Scripting</div>
+            <div class="description">
+                Exploitez une vulnérabilité XSS Stored pour voler les cookies d'un administrateur. 
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>🎯 Objectif du Défi :</h3>
+            <p>Injectez du code JavaScript malveillant dans un commentaire pour voler le cookie administrateur contenant le flag.</p>
+            <h3>💡 Instructions</h3>
+            <p>1. <strong>Postez un commentaire malveillant</strong> avec du code JavaScript</p>
+            <p>2. <strong>Simulez la visite d'un administrateur</strong> (bouton ci-dessous)</p>
+            <p>3. <strong>Rechargez les commentaires</strong>
+            <p>4. <strong>Votre payload XSS s'exécutera</strong>
+            <p>5. <strong>Exfiltrez le cookie </strong> vers votre serveur HTTP externe</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="panel">
+                <h2>💬 Poster un Commentaire</h2>
+                <div class="form-group">
+                    <label>Nom :</label>
+                    <input type="text" id="authorName" placeholder="Votre nom" value="Hacker">
+                </div>
+                <div class="form-group">
+                    <label>Commentaire :</label>
+                    <textarea id="commentText" placeholder="Votre commentaire..." rows="4">ZoubZoub</textarea>
+                </div>
+                <button class="btn" onclick="postComment()">📝 Poster le Commentaire</button>
+                <div id="postResponse" class="response-panel" style="display: none;"></div>
+            </div>
+            
+            <div class="panel">
+                <h2>📋 Commentaires Existants</h2>
+                <button class="btn btn-secondary" onclick="loadComments()">🔄 Recharger les Commentaires</button>
+                <div id="commentsContainer" class="comments-container">
+                    <!-- Les commentaires seront chargés ici -->
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h2>🤖 Simulation Administrateur</h2>
+                <p>Simule la visite d'un administrateur sur cette page</p>
+                <button class="btn btn-secondary" onclick="simulateAdminVisit()">👨‍💼 Simuler Visite Admin</button>
+                <div id="simulationResponse" class="response-panel" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/xss-challenge.js"></script>
+</body>
+</html> 

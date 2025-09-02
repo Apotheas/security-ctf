@@ -23,6 +23,9 @@ public class DataInitializer {
             
             // Initialize SQL injection challenge data
             initializeSqlInjectionData(dataSource);
+            
+            // Initialize XSS challenge data
+            initializeXssData(dataSource);
 
             // Check if regular user exists, create if not
             if (userRepository.findById(1L).isEmpty()) {
@@ -198,6 +201,52 @@ public class DataInitializer {
             
         } catch (Exception e) {
             System.err.println("❌ Error initializing SQL injection data: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void initializeXssData(DataSource dataSource) {
+        try (Connection connection = dataSource.getConnection()) {
+            
+            // Create comments table if not exists
+            PreparedStatement createCommentsTable = connection.prepareStatement(
+                "CREATE TABLE IF NOT EXISTS comments (" +
+                "id SERIAL PRIMARY KEY, " +
+                "author VARCHAR(255) NOT NULL, " +
+                "comment TEXT NOT NULL, " +
+                "created_at TIMESTAMP NOT NULL" +
+                ")"
+            );
+            createCommentsTable.executeUpdate();
+            
+            // NETTOYER : Supprimer tous les commentaires existants à chaque redémarrage
+            PreparedStatement deleteComments = connection.prepareStatement(
+                "DELETE FROM comments"
+            );
+            deleteComments.executeUpdate();
+            
+            // TOUJOURS insérer les commentaires par défaut
+            String[][] sampleComments = {
+                {"Pablo", "Super formateur, j'adore Jonathan.", "2024-01-15 10:30:00"},
+                {"Christophe", "Si je devais choisir un element dans ma boite ca serait pablo !", "2024-01-15 11:45:00"},
+                {"Patrice", "Arrettez de claquer la porte s'il vous plait.", "2024-01-15 14:20:00"},
+                {"Admin", "Les cookie c'est la vie😉", "2024-01-15 09:00:00"}
+            };
+            
+            for (String[] comment : sampleComments) {
+                PreparedStatement insertComment = connection.prepareStatement(
+                    "INSERT INTO comments (author, comment, created_at) VALUES (?, ?, ?)"
+                );
+                insertComment.setString(1, comment[0]);
+                insertComment.setString(2, comment[1]);
+                insertComment.setTimestamp(3, java.sql.Timestamp.valueOf(comment[2]));
+                insertComment.executeUpdate();
+            }
+            
+            System.out.println("✅ XSS challenge comments reset and initialized successfully!");
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error initializing XSS challenge data: " + e.getMessage());
             e.printStackTrace();
         }
     }

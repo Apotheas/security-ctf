@@ -33,6 +33,7 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**").permitAll()  // Allow access to OpenAPI docs
                         .requestMatchers("/api/auth/**").permitAll()  // Allow access to JWT auth endpoints
                         .requestMatchers("/api/injection/**").permitAll()  // Allow access to injection endpoints (vulnerable)
+                        .requestMatchers("/api/xss/**").permitAll()  // Allow access to XSS endpoints (vulnerable)
                         .requestMatchers("/*.html").permitAll()  // Allow access to all HTML pages
                         .requestMatchers("/").permitAll()  // Allow access to root path
                         .requestMatchers("/css/**").permitAll()  // Allow access to CSS files
