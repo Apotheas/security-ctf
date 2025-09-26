@@ -3,31 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Défi XSS Stored - CTF PACK Solutions</title>
+    <title>Challenge XSS Stored - CTF PACK Solutions</title>
     <link rel="stylesheet" href="css/challenge-styles.css">
 </head>
 <body>
     <div class="background-pattern"></div>
     
-    <a href="/" class="back-btn">← Retour aux Défis</a>
+    <a href="/" class="back-btn">← Retour aux Challenges</a>
     
     <div class="container">
         <div class="header">
             <h1>⚡ XSS Stored</h1>
-            <div class="subtitle">Défi #4 - Cross-Site Scripting</div>
+            <div class="subtitle">Challenge #4 - Cross-Site Scripting</div>
             <div class="description">
-                Exploitez une vulnérabilité XSS Stored pour voler les cookies d'un administrateur. 
+                Exploitez une vulnérabilité XSS Stored pour voler le cookie admin. 
             </div>
         </div>
         
         <div class="instructions">
-            <h3>🎯 Objectif du Défi :</h3>
-            <p>Injectez du code JavaScript malveillant dans un commentaire pour voler le cookie administrateur contenant le flag.</p>
-            <h3>💡 Instructions</h3>
-            <p>1. <strong>Postez un commentaire malveillant</strong> avec du code JavaScript</p>
-            <p>2. <strong>Simulez la visite d'un administrateur</strong> (bouton ci-dessous)</p>
-            <p>3. <strong>Rechargez les commentaires</strong>
-            <p>4. <strong>Exfiltrez le cookie </strong> vers votre serveur HTTP</p>
+            <h3> Objectif :</h3>
+            <p>Injectez du code JavaScript malveillant dans un commentaire pour voler le cookie administrateur en l'envoyant sur votre serveur http.</p>
         </div>
         
         <div class="main-content">
@@ -46,7 +41,7 @@
             </div>
             
             <div class="panel">
-                <h2>📋 Commentaires Existants</h2>
+                <h2> Commentaires Existants</h2>
                 <button class="btn btn-secondary" onclick="loadComments()">🔄 Recharger les Commentaires</button>
                 <div id="commentsContainer" class="comments-container">
                     <!-- Les commentaires seront chargés ici -->
@@ -54,11 +49,19 @@
             </div>
             
             <div class="panel">
-                <h2>🤖 Simulation Administrateur</h2>
+                <h2> Simulation Administrateur</h2>
                 <p>Simule la visite d'un administrateur sur cette page</p>
                 <button class="btn btn-secondary" onclick="simulateAdminVisit()">👨‍💼 Simuler Visite Admin</button>
                 <div id="simulationResponse" class="response-panel" style="display: none;"></div>
             </div>
+            
+            <div class="panel">
+                <h2> Nettoyage</h2>
+                <p>Supprime vos commentaires</p>
+                <button class="btn btn-danger" onclick="cleanupComments()">🧹 Nettoyer Mes Commentaires</button>
+                <div id="cleanupResponse" class="response-panel" style="display: none;"></div>
+            </div>
+            
         </div>
     </div>
 

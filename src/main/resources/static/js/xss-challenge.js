@@ -1,12 +1,12 @@
-// XSS Challenge JavaScript
+// XSS Challenge JavaScript - Version améliorée avec isolation par session
 
 // Charger les commentaires au chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
     loadComments();
 });
 
-// Variable pour tracker si l'admin a "visité"
-let adminHasVisited = false;
+// Variables globales
+let currentSessionId = null;
 
 // Fonction pour poster un commentaire
 async function postComment() {
@@ -62,15 +62,17 @@ async function simulateAdminVisit() {
         if (response.ok) {
             try {
                 const result = await response.json();
-                adminHasVisited = result.admin_visited || true;
+                currentSessionId = result.sessionId;
                 
                 showResponse('simulationResponse', 
-                    `✅ Visite admin simulée avec succès !<br>💡 L'admin a maintenant des cookies temporaires. Rechargez les commentaires pour déclencher votre XSS !`, 
+                    ` Simulation admin démarrée !<br>
+                     ${result.hint}<br>
+                     Endpoint cookie admin: <code>${result.adminCookieEndpoint}</code><br>
+                     Session: <code>${result.sessionId}</code>`, 
                     'success');
             } catch (jsonError) {
-                adminHasVisited = true;
                 showResponse('simulationResponse', 
-                    `✅ Visite admin simulée avec succès !<br>💡 L'admin a maintenant des cookies temporaires. Rechargez les commentaires pour déclencher votre XSS !`, 
+                    ` Simulation admin démarrée !`, 
                     'success');
             }
         } else {
@@ -82,37 +84,56 @@ async function simulateAdminVisit() {
     }
 }
 
-// Fonction pour afficher les cookies actuels (utile pour vérifier l'exfiltration)
-function showCurrentCookies() {
-    showResponse('cookieResponse', 
-        `💡 Les cookies admin sont temporaires et n'apparaissent que pendant le chargement des commentaires !<br><br>
-        📝 Utilisez un payload XSS pour les capturer`);
+
+// Fonction pour nettoyer les commentaires de l'utilisateur
+async function cleanupComments() {
+    try {
+        const response = await fetch('/api/xss/comments/cleanup', {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            showResponse('cleanupResponse', 
+                `✅ ${result.message}<br>
+                🆔 Session: <code>${result.sessionId}</code>`, 
+                'success');
+            
+            // Recharger les commentaires
+            setTimeout(loadComments, 500);
+        } else {
+            const error = await response.json();
+            showResponse('cleanupResponse', `❌ ${error.message}`, 'error');
+        }
+        
+    } catch (error) {
+        showResponse('cleanupResponse', `❌ Erreur de connexion: ${error.message}`, 'error');
+    }
 }
 
-// Fonction pour charger et afficher les commentaires
+// Fonction pour charger et afficher les commentaires (avec simulation cookie admin)
 async function loadComments() {
-    // Si l'admin a visité, créer temporairement le cookie admin
-    if (adminHasVisited) {
-        // Créer le cookie temporaire avec le flag
-        document.cookie = "admin_flag=FLAG{XSS_STORED_COOKIE_THEFT_SUCCESS}; path=/; max-age=10";
-        console.log("🔥 Cookie admin temporaire créé pour XSS...");
-    }
-    
     try {
-        const response = await fetch('/api/xss/comments');
+        const response = await fetch('/api/xss/comments', {
+            credentials: 'include'
+        });
         
         if (response.ok) {
             try {
                 const result = await response.json();
+                currentSessionId = result.sessionId;
+                
+                // Afficher si l'admin a visité
+                if (result.adminVisited) {
+                    console.log('🤖 Admin a visité cette session et a exécuté automatiquement tous les payloads XSS');
+                }
+                
                 displayComments(result.comments);
                 
-                // Supprimer le cookie temporaire après affichage des commentaires (permet au XSS de s'exécuter d'abord)
-                if (adminHasVisited) {
-                    setTimeout(() => {
-                        document.cookie = "admin_flag=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-                        console.log("🧹 Cookie admin temporaire supprimé");
-                    }, 2000); // 2 secondes pour permettre au XSS de s'exécuter
-                }
+                // Afficher les infos de session dans la console
+                console.log(`📋 Commentaires chargés pour la session: ${result.sessionId}`);
+                console.log(`📊 Total commentaires: ${result.totalComments}`);
                 
             } catch (jsonError) {
                 showResponse('commentsContainer', '❌ Erreur lors du chargement des commentaires', 'error');
@@ -131,7 +152,13 @@ function displayComments(comments) {
     const container = document.getElementById('commentsContainer');
     
     if (!comments || comments.length === 0) {
-        container.innerHTML = '<p class="no-comments">Aucun commentaire trouvé.</p>';
+        container.innerHTML = `
+            <div class="no-comments" style="text-align: center; padding: 40px; color: #666;">
+                <h3>💬 Aucun commentaire pour l'instant</h3>
+                <p>Soyez le premier à poster un commentaire !</p>
+                <p style="font-size: 12px; color: #999;">💡 Postez votre payload XSS ici pour commencer le défi</p>
+            </div>
+        `;
         return;
     }
     

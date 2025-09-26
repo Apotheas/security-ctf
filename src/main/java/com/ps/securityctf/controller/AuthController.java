@@ -76,7 +76,7 @@ public class AuthController {
         
         Map<String, Object> response = new HashMap<>();
         response.put("flag", "FLAG{JWT_ALGORITHM_NONE_ACCEPTED}");
-        response.put("message", "Congratulations! You exploited the JWT algorithm confusion vulnerability.");
+        response.put("message", "GG !!!");
         
         return ResponseEntity.ok(response);
     }

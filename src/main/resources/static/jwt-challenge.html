@@ -9,7 +9,7 @@
 <body>
     <div class="background-pattern"></div>
     
-    <a href="/" class="back-btn">← Retour aux Défis</a>
+    <a href="/" class="back-btn">← Retour aux Challenges</a>
     
     <div class="container">
         <div class="header">
@@ -21,20 +21,13 @@
         </div>
         
         <div class="instructions">
-            <h3>🎯 Objectif du Défi :</h3>
+            <h3> Objectif:</h3>
             <p>Exploitez la vulnérabilité de confusion d'algorithme JWT pour obtenir un accès administrateur non autorisé.</p>
-            <ul>
-                <li>Connectez-vous avec un compte utilisateur standard pour obtenir un token JWT</li>
-                <li>Analysez la structure du token JWT (header, payload, signature) via jwt.io</li>
-                <li>Modifiez l'algorithme, le rôle et la signature</li>
-                <li>Forgez un nouveau token et accédez aux ressources administrateur</li>
-                <li>Récupérez le flag secret stocké dans l'endpoint admin</li>
-            </ul>
         </div>
         
         <div class="main-content">
             <div class="panel">
-                <h2>🔐 Étape 1 : Authentification Utilisateur</h2>
+                <h2>Étape 1 : Authentification Utilisateur</h2>
                 <div class="instructions">
                     <h3>Instructions :</h3>
                     <p>Connectez-vous avec un compte utilisateur valide pour obtenir un token JWT légitime.</p>
@@ -52,14 +45,14 @@
             </div>
             
             <div class="panel">
-                <h2>🎯 Étape 2 : Test du Token Forgé</h2>
+                <h2>Étape 2 : Test du Token Forgé</h2>
                 <div class="instructions">
                     <h3>Instructions :</h3>
                     <p>Utilisez votre token forgé pour accéder à l'endpoint administrateur et récupérer le flag.</p>
                 </div>
                 <div class="form-group">
                     <label>Token forgé :</label>
-                    <textarea id="adminToken" placeholder="Collez votre token forgé ici..."></textarea>
+                    <textarea id="adminToken" placeholder="Collez votre token ici..."></textarea>
                 </div>
                 <button class="btn" onclick="accessAdminSecret()">🔓 Accéder au Secret Admin</button>
                 <div id="adminResponse" class="response-panel" style="display: none;"></div>

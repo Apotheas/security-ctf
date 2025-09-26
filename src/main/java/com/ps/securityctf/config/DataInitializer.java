@@ -109,7 +109,7 @@ public class DataInitializer {
 
 
             // Check if admin user exists, create if not
-            if (userRepository.findById(42L).isEmpty()) {
+            if (userRepository.findById(84L).isEmpty()) {
                 User admin = new User(
                         42L,
                         "admin",
@@ -208,10 +208,11 @@ public class DataInitializer {
     private void initializeXssData(DataSource dataSource) {
         try (Connection connection = dataSource.getConnection()) {
             
-            // Create comments table if not exists
+            // Create comments table with session support
             PreparedStatement createCommentsTable = connection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS comments (" +
                 "id SERIAL PRIMARY KEY, " +
+                "session_id VARCHAR(255) NOT NULL, " +
                 "author VARCHAR(255) NOT NULL, " +
                 "comment TEXT NOT NULL, " +
                 "created_at TIMESTAMP NOT NULL" +
@@ -219,29 +220,24 @@ public class DataInitializer {
             );
             createCommentsTable.executeUpdate();
             
-            // NETTOYER : Supprimer tous les commentaires existants à chaque redémarrage
-            PreparedStatement deleteComments = connection.prepareStatement(
-                "DELETE FROM comments"
+            // Create admin environments table for simulation
+            PreparedStatement createAdminEnvsTable = connection.prepareStatement(
+                "CREATE TABLE IF NOT EXISTS admin_environments (" +
+                "id SERIAL PRIMARY KEY, " +
+                "session_id VARCHAR(255) NOT NULL UNIQUE, " +
+                "admin_visited BOOLEAN DEFAULT FALSE, " +
+                "admin_cookie VARCHAR(500), " +
+                "created_at TIMESTAMP NOT NULL, " +
+                "expires_at TIMESTAMP NOT NULL" +
+                ")"
             );
-            deleteComments.executeUpdate();
+            createAdminEnvsTable.executeUpdate();
             
-            // TOUJOURS insérer les commentaires par défaut
-            String[][] sampleComments = {
-                {"Pablo", "Qui veut une biere ? 🍻 🍻 🍻", "2024-01-15 10:30:00"},
-                {"F.Izard", "Pensez à mettre à jour Chocolatey sur vos mac !", "2024-01-15 11:45:00"},
-                {"F.perez", "Cette interface pue la merde ! bla bla bla bla bla bla... ", "2024-01-15 14:20:00"},
-                {"Admin", "Les cookies c'est la vie <3", "2024-01-15 09:00:00"}
-            };
-            
-            for (String[] comment : sampleComments) {
-                PreparedStatement insertComment = connection.prepareStatement(
-                    "INSERT INTO comments (author, comment, created_at) VALUES (?, ?, ?)"
-                );
-                insertComment.setString(1, comment[0]);
-                insertComment.setString(2, comment[1]);
-                insertComment.setTimestamp(3, java.sql.Timestamp.valueOf(comment[2]));
-                insertComment.executeUpdate();
-            }
+            // NETTOYER : Supprimer tous les environnements expirés
+            PreparedStatement deleteExpiredEnvs = connection.prepareStatement(
+                "DELETE FROM admin_environments WHERE expires_at < NOW()"
+            );
+            deleteExpiredEnvs.executeUpdate();
             
             System.out.println("✅ XSS challenge comments reset and initialized successfully!");
             

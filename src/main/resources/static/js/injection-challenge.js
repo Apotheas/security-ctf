@@ -23,7 +23,6 @@ function searchProducts() {
                         <h3>Erreur SQL :</h3>
                         <p><strong>Erreur :</strong> ${data.error}</p>
                         ${data.details ? `<p><strong>Détails :</strong> ${data.details}</p>` : ''}
-                        ${data.hint ? `<p><strong>Indice :</strong> ${data.hint}</p>` : ''}
                     </div>
                 `;
             } else {
